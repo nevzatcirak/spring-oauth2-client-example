@@ -1,0 +1,44 @@
+server:
+  port: 8090
+
+rest:
+  security:
+    realm: x-realm
+    issuer-uri: http://localhost:8080/auth/realms/${rest.security.realm}
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          client-authorization-code:
+            provider: keycloak
+            client-id: user-client
+            client-secret: mysecret
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/authorize/oauth2/code/{registrationId}"
+            scope: user
+            description: 用户访问应用API所用
+            demo-username: tiger
+            demo-password: 123456
+          client-client-credentials:
+            provider: keycloak
+            client-id: app-client
+            client-secret: mysecret
+            authorization-grant-type: client_credentials
+            scope: app
+            description: 应用之间相互调用API所用
+          client-password:
+            provider: keycloak
+            client-id: user-client
+            client-secret: mysecret
+            authorization-grant-type: password
+            scope: user
+            description: 用户访问应用API所用
+            demo-username: monkey
+            demo-password: 123456
+        provider:
+          keycloak:
+            authorizationUri: ${rest.security.issuer-uri}/protocol/openid-connect/auth
+            tokenUri: ${rest.security.issuer-uri}/protocol/openid-connect/token
+            userInfoUri: ${rest.security.issuer-uri}/protocol/openid-connect/userinfo
