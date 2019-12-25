@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
  * @mail nevzatcirak17@gmail.com
  * Created by nevzatcirak at 25.12.2019.
  */
+@Configuration
 public class OAuth2ServerConfigProperties implements InitializingBean {
     @Value("${server.port}")
     private int serverPort;

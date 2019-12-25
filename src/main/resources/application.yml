@@ -7,6 +7,11 @@ rest:
     issuer-uri: http://localhost:8080/auth/realms/${rest.security.realm}
 
 spring:
+  keycloak:
+    admin:
+      server-url: http://localhost:8080/auth
+      username: admin
+      password: pa55w0rd
   security:
     oauth2:
       client:

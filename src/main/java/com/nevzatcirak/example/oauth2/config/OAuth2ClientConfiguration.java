@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedCli
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
@@ -23,11 +24,11 @@ import java.util.function.Function;
 @Configuration
 public class OAuth2ClientConfiguration {
 
-//    @Bean
-//    public WebClient webClient(WebClient.Builder webClientBuilder, OAuth2AuthorizedClientManager authorizedClientManager) {
-//        DefaultOAuth2AuthorizedClientExchangeFilter oauth2Client = new DefaultOAuth2AuthorizedClientExchangeFilter(authorizedClientManager);
-//        return webClientBuilder.apply(oauth2Client.oauth2Configuration()).build();
-//    }
+    @Bean
+    public WebClient webClient(WebClient.Builder webClientBuilder, OAuth2AuthorizedClientManager authorizedClientManager) {
+        DefaultOAuth2AuthorizedClientExchangeFilter oauth2Client = new DefaultOAuth2AuthorizedClientExchangeFilter(authorizedClientManager);
+        return webClientBuilder.apply(oauth2Client.oauth2Configuration()).build();
+    }
 
     @Bean
     public OAuth2AuthorizedClientManager authorizedClientManager(ClientRegistrationRepository clientRegistrationRepository,
