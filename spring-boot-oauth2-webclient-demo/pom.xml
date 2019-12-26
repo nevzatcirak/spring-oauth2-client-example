@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <artifactId>oauth2</artifactId>
+        <artifactId>oauth2-demo-parent</artifactId>
         <groupId>com.nevzatcirak.example</groupId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../</relativePath>
@@ -16,6 +16,7 @@
     </properties>
 
     <artifactId>spring-boot-oauth2-webclient-demo</artifactId>
+    <name>OAuth2 Webclient Demo</name>
     <packaging>jar</packaging>
 
     <dependencies>
