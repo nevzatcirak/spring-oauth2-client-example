@@ -62,6 +62,7 @@ spring:
             keycloak:
               authorizationUri: ${rest.security.issuer-uri}/protocol/openid-connect/auth
               tokenUri: ${rest.security.issuer-uri}/protocol/openid-connect/token
+              user-name-attribute: preferred_username
               userInfoUri: ${rest.security.issuer-uri}/protocol/openid-connect/userinfo
 app:
   auth:
