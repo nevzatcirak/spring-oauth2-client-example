@@ -16,6 +16,8 @@
     </properties>
 
     <artifactId>spring-boot-oauth2-webclient-demo</artifactId>
+    <groupId>com.nevzatcirak.example</groupId>
+    <version>0.0.1-SNAPSHOT</version>
     <name>OAuth2 Webclient Demo</name>
     <packaging>jar</packaging>
 

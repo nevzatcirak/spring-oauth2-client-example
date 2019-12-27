@@ -1,0 +1,11 @@
+server:
+  port: 8089
+resourceServer:
+  resourceId: your-resource-id # will be used to extract the scoped roles for this resource from the jwt id-token
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/auth/realms/x-realm
