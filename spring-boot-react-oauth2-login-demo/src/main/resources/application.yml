@@ -1,5 +1,5 @@
 server:
-  port: 8087
+  port: 8090
 
 rest:
   security:
@@ -8,7 +8,7 @@ rest:
 
 spring:
     datasource:
-        url: jdbc:mysql://localhost:3306/oauth2_demo
+        url: jdbc:mysql://localhost:3307/oauth2_demo
         username: user
         password: password
 
@@ -47,7 +47,7 @@ spring:
                 - read:user
             keycloak:
               clientId: user-client
-              clientSecret: 36d643fb-1520-47c7-82bd-ca1ff5411bbe
+              clientSecret: dc56ae34-d246-40a8-af03-add598d3bfbb
               authorizationGrantType: authorization_code
               redirectUri:  "{baseUrl}/oauth2/callback/{registrationId}"
               scope:

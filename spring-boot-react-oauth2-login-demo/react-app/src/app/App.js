@@ -11,7 +11,7 @@ import Profile from '../user/profile/Profile';
 import OAuth2RedirectHandler from '../user/oauth2/OAuth2RedirectHandler';
 import NotFound from '../common/NotFound';
 import LoadingIndicator from '../common/LoadingIndicator';
-import { getCurrentUser } from '../util/APIUtils';
+import { getCurrentUser, getTestInfo, getTestInfo2 } from '../util/APIUtils';
 import { ACCESS_TOKEN } from '../constants';
 import PrivateRoute from '../common/PrivateRoute';
 import Alert from 'react-s-alert';
@@ -60,6 +60,14 @@ class App extends Component {
     Alert.success("You're safely logged out!");
   }
 
+  getTestInfo() {
+      getTestInfo();
+  }
+
+  getTestInfo2() {
+      getTestInfo2();
+  }
+
   componentDidMount() {
     this.loadCurrentlyLoggedInUser();
   }
@@ -72,7 +80,7 @@ class App extends Component {
     return (
       <div className="app">
         <div className="app-top-box">
-          <AppHeader authenticated={this.state.authenticated} onLogout={this.handleLogout} />
+          <AppHeader authenticated={this.state.authenticated} onLogout={this.handleLogout} getTestInfo={this.getTestInfo} getTestInfo2={this.getTestInfo2} />
         </div>
         <div className="app-body">
           <Switch>

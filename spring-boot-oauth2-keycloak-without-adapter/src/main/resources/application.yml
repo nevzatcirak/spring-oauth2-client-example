@@ -1,7 +1,18 @@
 server:
   port: 8089
+
+rest:
+  security:
+    enabled: true
+    api-matcher: /api/**
+    cors:
+      allowed-origins: "*"
+      allowed-headers: "*"
+      allowed-methods: "GET,POST,PUT,DELETE"
+      max-age: 3600
+
 resourceServer:
-  resourceId: your-resource-id # will be used to extract the scoped roles for this resource from the jwt id-token
+  resourceId: test-resource-service # will be used to extract the scoped roles for this resource from the jwt id-token
 
 spring:
   security:
@@ -9,3 +20,10 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/auth/realms/x-realm
+
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
