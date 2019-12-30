@@ -1,15 +1,16 @@
 package com.nevzatcirak.example.config;
 
+import com.nevzatcirak.example.security.*;
 import com.nevzatcirak.example.security.oauth2.CustomOAuth2UserService;
 import com.nevzatcirak.example.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.nevzatcirak.example.security.oauth2.OAuth2AuthenticationFailureHandler;
 import com.nevzatcirak.example.security.oauth2.OAuth2AuthenticationSuccessHandler;
-import com.nevzatcirak.example.security.CustomUserDetailsService;
-import com.nevzatcirak.example.security.RestAuthenticationEntryPoint;
-import com.nevzatcirak.example.security.TokenAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -20,7 +21,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 
 @Configuration
 @EnableWebSecurity
@@ -30,6 +33,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         prePostEnabled = true
 )
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String jwtIssuerUri;
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
@@ -46,11 +52,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
-    @Bean
+    @Autowired
+    private TokenService tokenService;
+
+    /*@Bean
+    public LoginAuthenticationFilter loginAuthenticationFilter() {
+        return new LoginAuthenticationFilter();
+    }*/
+
+    /*@Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
         return new TokenAuthenticationFilter();
-    }
+    }*/
 
+    /*@Bean
+    public JwtDecoder jwtDecoder(){
+        NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(jwtIssuerUri);
+
+        OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator();
+    }*/
     /*
       By default, Spring OAuth2 uses HttpSessionOAuth2AuthorizationRequestRepository to save
       the authorization request. But, since our service is stateless, we can't save it in
@@ -73,6 +93,29 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public RefreshTokenOAuth2AuthorizedClientProvider refreshTokenOAuth2AuthorizedClientProvider(){
+        RefreshTokenOAuth2AuthorizedClientProvider refreshTokenOAuth2AuthorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
+        refreshTokenOAuth2AuthorizedClientProvider.setAccessTokenResponseClient(this.customRefreshTokenTokenResponseClient());
+        return new RefreshTokenOAuth2AuthorizedClientProvider();
+    }
+
+    /**
+     * This CustomAuthorizationCodeTokenResponseClient is used instead of DefaultAuthorizationCodeTokenResponseClient
+     */
+    @Bean
+    public CustomAuthorizationCodeTokenResponseClient customAuthorizationCodeTokenResponseClient(){
+        return new CustomAuthorizationCodeTokenResponseClient(tokenService);
+    }
+
+    /**
+     * This CustomRefreshTokenTokenResponseClient is used instead of DefaultRefreshTokenTokenResponseClient
+     */
+    @Bean
+    public CustomRefreshTokenTokenResponseClient customRefreshTokenTokenResponseClient(){
+        return new CustomRefreshTokenTokenResponseClient(tokenService);
+    }
+
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
     @Override
@@ -80,25 +123,37 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    @Bean
+    Converter<Jwt, AbstractAuthenticationToken> grantedAuthoritiesExtractorConverter() {
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesExtractor());
+        return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    GrantedAuthoritiesExtractor grantedAuthoritiesExtractor() {
+        return new GrantedAuthoritiesExtractor();
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .cors()
-                    .and()
+                .and()
                 .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    .and()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .csrf()
-                    .disable()
+                .disable()
                 .formLogin()
-                    .disable()
+                .disable()
                 .httpBasic()
-                    .disable()
+                .disable()
                 .exceptionHandling()
-                    .authenticationEntryPoint(new RestAuthenticationEntryPoint())
-                    .and()
+                .authenticationEntryPoint(new RestAuthenticationEntryPoint())
+                .and()
                 .authorizeRequests()
-                    .antMatchers("/",
+                .antMatchers("/",
                         "/error",
                         "/favicon.ico",
                         "/**/*.png",
@@ -108,27 +163,40 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.html",
                         "/**/*.css",
                         "/**/*.js")
-                        .permitAll()
-                    .antMatchers("/auth/**", "/oauth2/**")
-                        .permitAll()
-                    .anyRequest()
-                        .authenticated()
-                    .and()
+                .permitAll()
+                .antMatchers("/auth/**", "/oauth2/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> {
+                    httpSecurityOAuth2ResourceServerConfigurer
+                            .jwt()
+                            .jwtAuthenticationConverter(grantedAuthoritiesExtractorConverter());
+                })
                 .oauth2Login()
                     .authorizationEndpoint()
-                        .baseUri("/oauth2/authorize")
-                        .authorizationRequestRepository(cookieAuthorizationRequestRepository())
-                        .and()
+                    .baseUri("/oauth2/authorize")
+                    .authorizationRequestRepository(cookieAuthorizationRequestRepository())
+                    .and()
                     .redirectionEndpoint()
-                        .baseUri("/oauth2/callback/*")
-                        .and()
+                    .baseUri("/oauth2/callback/*")
+                    .and()
+                    .tokenEndpoint(tokenEndpoint ->
+                            tokenEndpoint
+                                    .accessTokenResponseClient(this.customAuthorizationCodeTokenResponseClient())
+                    )
                     .userInfoEndpoint()
-                        .userService(customOAuth2UserService)
-                        .and()
+                    .userService(customOAuth2UserService)
+                    .and()
                     .successHandler(oAuth2AuthenticationSuccessHandler)
-                    .failureHandler(oAuth2AuthenticationFailureHandler);
+                    .failureHandler(oAuth2AuthenticationFailureHandler)
+                    .and()
+                .oauth2Client()
+                    .authorizationCodeGrant()
+                    .accessTokenResponseClient(this.customAuthorizationCodeTokenResponseClient());
 
         // Add our custom Token based authentication filter
-        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+//        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 }

@@ -10,8 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.nevzatcirak.example</groupId>
-    <artifactId>spring-boot-oauth2-keycloak-without-adapter</artifactId>
+    <artifactId>spring-boot-oauth2-resource-server-example</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <name>OAuth2 Resource Server Demo</name>
 
     <dependencies>
         <dependency>

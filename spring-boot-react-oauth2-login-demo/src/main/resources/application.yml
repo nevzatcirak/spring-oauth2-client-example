@@ -22,6 +22,10 @@ spring:
                 dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     security:
       oauth2:
+        resourceserver:
+          id: test-name-id #Bu id değiştirilecek.
+          jwt:
+            issuer-uri: http://localhost:8080/auth/realms/x-realm
         client:
           registration:
             google:
@@ -66,7 +70,7 @@ spring:
               userInfoUri: ${rest.security.issuer-uri}/protocol/openid-connect/userinfo
 app:
   auth:
-    tokenSecret: 926D96C90030DD58429D2751AC1BDBBC
+    tokenSecret: 9fiEMAdPYrAycfmaSbqe6ly0HjuTpCairX3YIH3bihU
     tokenExpirationMsec: 864000000
   oauth2:
     # After successfully authenticating with the OAuth2 Provider,
@@ -77,3 +81,9 @@ app:
       - http://localhost:3000/oauth2/redirect
       - myandroidapp://oauth2/redirect
       - myiosapp://oauth2/redirect
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

@@ -8,7 +8,7 @@ import com.nevzatcirak.example.payload.AuthResponse;
 import com.nevzatcirak.example.payload.LoginRequest;
 import com.nevzatcirak.example.payload.SignUpRequest;
 import com.nevzatcirak.example.repository.UserRepository;
-import com.nevzatcirak.example.security.TokenProvider;
+import com.nevzatcirak.example.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,7 +36,7 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private TokenProvider tokenProvider;
+    private TokenService tokenService;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -50,7 +50,7 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String token = tokenProvider.createToken(authentication);
+        String token = tokenService.createToken(authentication);
         return ResponseEntity.ok(new AuthResponse(token));
     }
 

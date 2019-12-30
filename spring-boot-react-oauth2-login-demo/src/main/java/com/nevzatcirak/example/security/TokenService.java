@@ -4,7 +4,13 @@ import com.nevzatcirak.example.config.AppProperties;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -12,14 +18,29 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 @Service
-public class TokenProvider {
+public class TokenService {
 
-    private static final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
     private AppProperties appProperties;
+    private  OAuth2AuthorizedClientService clientService;
 
-    public TokenProvider(AppProperties appProperties) {
+    private OAuth2AccessToken accessToken;
+    private OAuth2RefreshToken refreshToken;
+
+    @Autowired
+    public TokenService(AppProperties appProperties,  OAuth2AuthorizedClientService clientService) {
         this.appProperties = appProperties;
+        this.clientService = clientService;
+    }
+
+    public String getToken(Authentication authentication) {
+        String token = null;
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthorizedClient oAuth2AuthorizedClient = clientService.loadAuthorizedClient(((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId(), authentication.getName());
+            token = oAuth2AuthorizedClient.getAccessToken().getTokenValue();
+        }
+        return token;
     }
 
     public String createToken(Authentication authentication) {
@@ -36,16 +57,20 @@ public class TokenProvider {
                 .compact();
     }
 
-    public Long getUserIdFromToken(String token) {
+    /*public Long getUserIdFromToken(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(appProperties.getAuth().getTokenSecret())
                 .parseClaimsJws(token)
                 .getBody();
 
         return Long.parseLong(claims.getSubject());
+    }*/
+
+    public String getEmail(String token){
+        return "";
     }
 
-    public boolean validateToken(String authToken) {
+    /*public boolean validateToken(String authToken) {
         try {
             Jwts.parser().setSigningKey(appProperties.getAuth().getTokenSecret()).parseClaimsJws(authToken);
             return true;
@@ -61,14 +86,21 @@ public class TokenProvider {
             logger.error("JWT claims string is empty.");
         }
         return false;
+    }*/
+
+    public OAuth2AccessToken getAccessToken() {
+        return accessToken;
     }
 
-    public String getJwtFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7, bearerToken.length());
-        }
-        return null;
+    public void setAccessToken(OAuth2AccessToken accessToken) {
+        this.accessToken = accessToken;
     }
 
+    public OAuth2RefreshToken getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(OAuth2RefreshToken refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 }
