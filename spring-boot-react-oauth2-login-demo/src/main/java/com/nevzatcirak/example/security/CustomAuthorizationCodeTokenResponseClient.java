@@ -37,7 +37,7 @@ public final class CustomAuthorizationCodeTokenResponseClient implements OAuth2A
 
     public OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest) {
         Assert.notNull(authorizationCodeGrantRequest, "authorizationCodeGrantRequest cannot be null");
-        RequestEntity request = (RequestEntity)this.requestEntityConverter.convert(authorizationCodeGrantRequest);
+        RequestEntity request = this.requestEntityConverter.convert(authorizationCodeGrantRequest);
 
         ResponseEntity response;
         try {
