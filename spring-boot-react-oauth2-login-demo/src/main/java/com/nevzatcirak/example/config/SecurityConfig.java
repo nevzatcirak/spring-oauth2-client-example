@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -55,22 +56,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private TokenService tokenService;
 
-    /*@Bean
-    public LoginAuthenticationFilter loginAuthenticationFilter() {
-        return new LoginAuthenticationFilter();
-    }*/
-
-    /*@Bean
+   /* @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
         return new TokenAuthenticationFilter();
     }*/
 
-    /*@Bean
-    public JwtDecoder jwtDecoder(){
-        NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(jwtIssuerUri);
-
-        OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator();
-    }*/
     /*
       By default, Spring OAuth2 uses HttpSessionOAuth2AuthorizationRequestRepository to save
       the authorization request. But, since our service is stateless, we can't save it in
@@ -169,11 +159,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .authenticated()
                 .and()
-                .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> {
-                    httpSecurityOAuth2ResourceServerConfigurer
-                            .jwt()
-                            .jwtAuthenticationConverter(grantedAuthoritiesExtractorConverter());
-                })
                 .oauth2Login()
                     .authorizationEndpoint()
                     .baseUri("/oauth2/authorize")
@@ -192,6 +177,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .successHandler(oAuth2AuthenticationSuccessHandler)
                     .failureHandler(oAuth2AuthenticationFailureHandler)
                     .and()
+                .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> {
+                    httpSecurityOAuth2ResourceServerConfigurer
+                            .jwt()
+                            .jwtAuthenticationConverter(grantedAuthoritiesExtractorConverter());
+                })
                 .oauth2Client()
                     .authorizationCodeGrant()
                     .accessTokenResponseClient(this.customAuthorizationCodeTokenResponseClient());

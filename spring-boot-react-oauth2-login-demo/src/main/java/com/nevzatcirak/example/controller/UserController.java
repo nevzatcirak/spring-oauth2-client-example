@@ -7,6 +7,7 @@ import com.nevzatcirak.example.security.CurrentUser;
 import com.nevzatcirak.example.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,8 +21,14 @@ public class UserController {
 
     @GetMapping("/user/me")
     @PreAuthorize("hasRole('USER')")
-    public User getCurrentUser(@CurrentUser UserPrincipal userPrincipal, HttpServletRequest httpServletRequest) {
-        return userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+    public User getCurrentUser(@CurrentUser UserPrincipal userPrincipal, @CurrentUser Jwt jwt, HttpServletRequest httpServletRequest) {
+        if (userPrincipal != null)
+            return userRepository.findById(userPrincipal.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+        else if(jwt != null)
+            return userRepository.findByEmail(jwt.getClaims().get("email").toString())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "id", jwt.getClaims().get("email").toString()));
+        else
+            return null;
     }
 }

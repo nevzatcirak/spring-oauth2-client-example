@@ -9,9 +9,10 @@ const request = (options) => {
         headers.append('Authorization', 'Bearer ' + localStorage.getItem(ACCESS_TOKEN))
     }
 
+    console.log(headers);
     const defaults = { headers: headers };
     options = Object.assign({}, defaults, options);
-
+    console.log(options);
     return fetch(options.url, options)
         .then(response => {
             console.log(response);

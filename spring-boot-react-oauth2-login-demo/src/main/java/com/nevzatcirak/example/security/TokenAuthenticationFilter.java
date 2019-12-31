@@ -1,4 +1,3 @@
-/*
 package com.nevzatcirak.example.security;
 
 import org.slf4j.Logger;
@@ -8,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -32,15 +32,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = getJwtFromRequest(request);
 
-            if (StringUtils.hasText(jwt) */
-/*&& tokenService.validateToken(jwt)*//*
-) {
+            if (StringUtils.hasText(jwt) /*&& tokenService.validateToken(jwt)*/) {
 //                Long userId = tokenService.getUserIdFromToken(jwt);
                 Long userId = 1l;
 
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername("nevzatcirak17@hotmail.com");
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetails(request));
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
@@ -59,4 +57,3 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 }
-*/
