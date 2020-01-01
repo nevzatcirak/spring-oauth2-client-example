@@ -3,15 +3,14 @@ package com.nevzatcirak.example.controller;
 import com.nevzatcirak.example.exception.ResourceNotFoundException;
 import com.nevzatcirak.example.model.User;
 import com.nevzatcirak.example.repository.UserRepository;
-import com.nevzatcirak.example.security.CurrentUser;
 import com.nevzatcirak.example.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
 
 @RestController
 public class UserController {
@@ -21,7 +20,7 @@ public class UserController {
 
     @GetMapping("/user/me")
     @PreAuthorize("hasRole('USER')")
-    public User getCurrentUser(@CurrentUser UserPrincipal userPrincipal, @CurrentUser Jwt jwt, HttpServletRequest httpServletRequest) {
+    public User getCurrentUser(@AuthenticationPrincipal UserPrincipal userPrincipal, @AuthenticationPrincipal Jwt jwt, Authentication authentication) {
         if (userPrincipal != null)
             return userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));

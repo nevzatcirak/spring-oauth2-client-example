@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,10 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
-
-    @Autowired
-    private TokenService tokenService;
-
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
@@ -32,11 +27,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = getJwtFromRequest(request);
 
-            if (StringUtils.hasText(jwt) /*&& tokenService.validateToken(jwt)*/) {
-//                Long userId = tokenService.getUserIdFromToken(jwt);
-                Long userId = 1l;
+            if (StringUtils.hasText(jwt)) {
+                String username = "nevzatcirak17@hotmail.com"; // This part will be extracted from token
 
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername("nevzatcirak17@hotmail.com");
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

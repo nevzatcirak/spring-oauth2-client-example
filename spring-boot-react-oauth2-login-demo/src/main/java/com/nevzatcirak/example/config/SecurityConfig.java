@@ -1,12 +1,13 @@
 package com.nevzatcirak.example.config;
 
-import com.nevzatcirak.example.security.*;
+import com.nevzatcirak.example.security.CustomUserDetailsService;
+import com.nevzatcirak.example.security.RestAuthenticationEntryPoint;
+import com.nevzatcirak.example.security.TokenAuthenticationFilter;
 import com.nevzatcirak.example.security.oauth2.CustomOAuth2UserService;
 import com.nevzatcirak.example.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.nevzatcirak.example.security.oauth2.OAuth2AuthenticationFailureHandler;
 import com.nevzatcirak.example.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +24,8 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
@@ -36,9 +39,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         prePostEnabled = true
 )
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-    private String jwtIssuerUri;
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
@@ -54,9 +54,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
-
-    @Autowired
-    private TokenService tokenService;
 
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
@@ -88,24 +85,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public RefreshTokenOAuth2AuthorizedClientProvider refreshTokenOAuth2AuthorizedClientProvider() {
         RefreshTokenOAuth2AuthorizedClientProvider refreshTokenOAuth2AuthorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
-        refreshTokenOAuth2AuthorizedClientProvider.setAccessTokenResponseClient(this.customRefreshTokenTokenResponseClient());
+        refreshTokenOAuth2AuthorizedClientProvider.setAccessTokenResponseClient(this.defaultRefreshTokenTokenResponseClient());
         return new RefreshTokenOAuth2AuthorizedClientProvider();
     }
 
-    /**
-     * This CustomAuthorizationCodeTokenResponseClient is used instead of DefaultAuthorizationCodeTokenResponseClient
-     */
     @Bean
-    public CustomAuthorizationCodeTokenResponseClient customAuthorizationCodeTokenResponseClient() {
-        return new CustomAuthorizationCodeTokenResponseClient(tokenService);
+    public DefaultAuthorizationCodeTokenResponseClient defaultAuthorizationCodeTokenResponseClient() {
+        return new DefaultAuthorizationCodeTokenResponseClient();
     }
 
-    /**
-     * This CustomRefreshTokenTokenResponseClient is used instead of DefaultRefreshTokenTokenResponseClient
-     */
     @Bean
-    public CustomRefreshTokenTokenResponseClient customRefreshTokenTokenResponseClient() {
-        return new CustomRefreshTokenTokenResponseClient(tokenService);
+    public DefaultRefreshTokenTokenResponseClient defaultRefreshTokenTokenResponseClient() {
+        return new DefaultRefreshTokenTokenResponseClient();
     }
 
 
@@ -192,7 +183,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                                 )
                                 .tokenEndpoint(tokenEndpoint ->
                                         tokenEndpoint
-                                                .accessTokenResponseClient(this.customAuthorizationCodeTokenResponseClient())
+                                                .accessTokenResponseClient(this.defaultAuthorizationCodeTokenResponseClient())
                                 )
                                 .userInfoEndpoint(userInfoEndpoint ->
                                         userInfoEndpoint
@@ -204,7 +195,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .oauth2Client(oauth2Client ->
                         oauth2Client
                                 .authorizationCodeGrant()
-                                .accessTokenResponseClient(this.customAuthorizationCodeTokenResponseClient())
+                                .accessTokenResponseClient(this.defaultAuthorizationCodeTokenResponseClient())
                 );
 
         // Add our custom Token based authentication filter

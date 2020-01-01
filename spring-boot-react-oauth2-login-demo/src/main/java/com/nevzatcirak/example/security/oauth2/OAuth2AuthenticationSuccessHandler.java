@@ -2,14 +2,11 @@ package com.nevzatcirak.example.security.oauth2;
 
 import com.nevzatcirak.example.config.AppProperties;
 import com.nevzatcirak.example.exception.BadRequestException;
-import com.nevzatcirak.example.security.TokenService;
+import com.nevzatcirak.example.model.AuthProvider;
+import com.nevzatcirak.example.service.TokenService;
 import com.nevzatcirak.example.util.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -26,19 +23,18 @@ import static com.nevzatcirak.example.security.oauth2.HttpCookieOAuth2Authorizat
 
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
-    private TokenService tokenService;
-
     private AppProperties appProperties;
 
     private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
+    private TokenService tokenService;
+
     @Autowired
     OAuth2AuthenticationSuccessHandler(TokenService tokenService, AppProperties appProperties,
                                        HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository) {
-        this.tokenService = tokenService;
         this.appProperties = appProperties;
         this.httpCookieOAuth2AuthorizationRequestRepository = httpCookieOAuth2AuthorizationRequestRepository;
+        this.tokenService = tokenService;
     }
 
     @Override
@@ -63,8 +59,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
+        String token = tokenService.getAccessTokenValue(AuthProvider.keycloak.name(), authentication);
 
-        String token = tokenService.getToken(authentication);
         return UriComponentsBuilder.fromUriString(targetUrl)
                 .queryParam("token", token)
                 .build().toUriString();

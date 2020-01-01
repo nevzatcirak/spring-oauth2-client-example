@@ -1,32 +1,13 @@
 package com.nevzatcirak.example.controller;
 
-import com.nevzatcirak.example.exception.BadRequestException;
-import com.nevzatcirak.example.model.AuthProvider;
-import com.nevzatcirak.example.model.User;
-import com.nevzatcirak.example.payload.ApiResponse;
-import com.nevzatcirak.example.payload.AuthResponse;
-import com.nevzatcirak.example.payload.LoginRequest;
-import com.nevzatcirak.example.payload.SignUpRequest;
-import com.nevzatcirak.example.repository.UserRepository;
-import com.nevzatcirak.example.security.TokenService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.validation.Valid;
-import java.net.URI;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
+    /*@Autowired
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -77,6 +58,6 @@ public class AuthController {
 
         return ResponseEntity.created(location)
                 .body(new ApiResponse(true, "User registered successfully@"));
-    }
+    }*/
 
 }
