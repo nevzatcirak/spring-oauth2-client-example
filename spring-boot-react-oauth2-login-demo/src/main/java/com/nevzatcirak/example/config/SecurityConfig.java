@@ -1,8 +1,8 @@
 package com.nevzatcirak.example.config;
 
 import com.nevzatcirak.example.security.CustomUserDetailsService;
+import com.nevzatcirak.example.security.GrantedAuthoritiesExtractor;
 import com.nevzatcirak.example.security.RestAuthenticationEntryPoint;
-import com.nevzatcirak.example.security.TokenAuthenticationFilter;
 import com.nevzatcirak.example.security.oauth2.CustomOAuth2UserService;
 import com.nevzatcirak.example.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.nevzatcirak.example.security.oauth2.OAuth2AuthenticationFailureHandler;
@@ -10,6 +10,8 @@ import com.nevzatcirak.example.security.oauth2.OAuth2AuthenticationSuccessHandle
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -29,7 +31,8 @@ import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTo
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 
 @Configuration
 @EnableWebSecurity
@@ -55,10 +58,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
-    @Bean
+    /*@Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
         return new TokenAuthenticationFilter();
-    }
+    }*/
 
     /*
       By default, Spring OAuth2 uses HttpSessionOAuth2AuthorizationRequestRepository to save
@@ -111,6 +114,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * of an OAuth 2.0 Client, in collaboration with one or more OAuth2AuthorizedClientProvider(s) and
      * associate it with an OAuth2AuthorizedClientProvider composite that provides support for the
      * authorization_code, refresh_token, client_credentials and password authorization grant types
+     *
      * @param clientRegistrationRepository
      * @param authorizedClientRepository
      * @return
@@ -135,6 +139,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         return authorizedClientManager;
     }
+
+    /************************Resource Server Configurations*********************************/
+
+    @Bean
+    Converter<Jwt, AbstractAuthenticationToken> grantedAuthoritiesExtractorConverter() {
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesExtractor());
+        return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    GrantedAuthoritiesExtractor grantedAuthoritiesExtractor() {
+        return new GrantedAuthoritiesExtractor();
+    }
+
+    /***************************************************************************************/
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -196,9 +216,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         oauth2Client
                                 .authorizationCodeGrant()
                                 .accessTokenResponseClient(this.defaultAuthorizationCodeTokenResponseClient())
+                )
+                .oauth2ResourceServer(oauth2ResourceServer ->
+                        oauth2ResourceServer
+                                .jwt()
+                                .jwtAuthenticationConverter(grantedAuthoritiesExtractorConverter())
                 );
 
         // Add our custom Token based authentication filter
-        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+//        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 }
