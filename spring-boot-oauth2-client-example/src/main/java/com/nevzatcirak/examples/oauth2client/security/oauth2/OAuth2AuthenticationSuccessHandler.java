@@ -19,6 +19,11 @@ import java.util.Optional;
 
 import static com.nevzatcirak.examples.oauth2client.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
 
+/**
+ * @author Nevzat ÇIRAK,
+ * @mail nevzatcirak17@gmail.com
+ * Created by nevzatcirak at 01/07/2020.
+ */
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;

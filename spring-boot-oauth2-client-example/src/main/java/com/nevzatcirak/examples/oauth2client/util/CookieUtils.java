@@ -8,6 +8,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Base64;
 import java.util.Optional;
 
+/**
+ * @author Nevzat ÇIRAK,
+ * @mail nevzatcirak17@gmail.com
+ * Created by nevzatcirak at 01/07/2020.
+ */
 public class CookieUtils {
 
     public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {

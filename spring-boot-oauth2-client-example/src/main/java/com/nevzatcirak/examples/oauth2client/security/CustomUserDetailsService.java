@@ -1,7 +1,7 @@
 package com.nevzatcirak.examples.oauth2client.security;
 
 
-import com.nevzatcirak.examples.oauth2client.security.model.AuthUser;
+import com.nevzatcirak.examples.oauth2client.security.model.OAuthUser;
 import com.nevzatcirak.examples.oauth2client.security.model.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,6 +10,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Nevzat ÇIRAK,
+ * @mail nevzatcirak17@gmail.com
+ * Created by nevzatcirak at 01/07/2020.
+ */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
     private static final Logger logger = LogManager.getLogger();
@@ -37,8 +42,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         return user;
     }
 
-    private AuthUser convertUser(User user) {
-        return new AuthUser(user);
+    private OAuthUser convertUser(User user) {
+        return new OAuthUser(user);
     }
 
 }

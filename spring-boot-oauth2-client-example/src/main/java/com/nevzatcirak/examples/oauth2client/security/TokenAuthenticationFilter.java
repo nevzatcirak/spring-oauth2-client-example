@@ -1,12 +1,10 @@
 package com.nevzatcirak.examples.oauth2client.security;
 
 import com.nevzatcirak.examples.oauth2client.security.model.AuthProvider;
-import com.nevzatcirak.examples.oauth2client.security.model.AuthUser;
 import com.nevzatcirak.examples.oauth2client.security.model.OAuthUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -20,6 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * @author Nevzat ÇIRAK,
+ * @mail nevzatcirak17@gmail.com
+ * Created by nevzatcirak at 01/07/2020.
+ */
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;

@@ -8,6 +8,11 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
+/**
+ * @author Nevzat ÇIRAK,
+ * @mail nevzatcirak17@gmail.com
+ * Created by nevzatcirak at 01/07/2020.
+ */
 public class CustomRestTemplate extends RestTemplate {
     
     public CustomRestTemplate(String accessToken) {

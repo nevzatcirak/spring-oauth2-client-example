@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Nevzat ÇIRAK,
  * @mail nevzatcirak17@gmail.com
- * Created by nevzatcirak at 01/01/2020.
+ * Created by nevzatcirak at 01/07/2020.
  */
 @Service
 public class TokenServiceImpl implements TokenService {

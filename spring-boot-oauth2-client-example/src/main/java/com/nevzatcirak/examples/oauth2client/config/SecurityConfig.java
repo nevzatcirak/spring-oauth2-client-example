@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -39,6 +40,11 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * @author Nevzat ÇIRAK,
+ * @mail nevzatcirak17@gmail.com
+ * Created by nevzatcirak at 01/07/2020.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
@@ -57,13 +63,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
-    @Value("security.issuer-uri")
+    @Value("${auth.issuer-uri}")
     private String issuerUri;
 
-    @Value("security.client-id")
+    @Value("${auth.client-id}")
     private String clientId;
 
-    @Value("security.client-secret")
+    @Value("${auth.client-secret}")
     private String clientSecret;
 
     @Bean
@@ -237,7 +243,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .userInfoUri(issuerUri + "/protocol/openid-connect/userinfo")
                 .userNameAttributeName("preferred_username")
                 .jwkSetUri(issuerUri + "/protocol/openid-connect/certs")
-//                .clientName("Google")
+                .clientName("Kapi")
                 .build();
     }
 }

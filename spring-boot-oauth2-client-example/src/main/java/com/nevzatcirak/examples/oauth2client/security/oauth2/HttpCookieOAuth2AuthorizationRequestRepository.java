@@ -9,7 +9,12 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
 /**
+ * @author Nevzat ÇIRAK,
+ * @mail nevzatcirak17@gmail.com
+ * Created by nevzatcirak at 01/07/2020.
+ * <p>
  * The AuthorizationRequestRepository is responsible for the persistence of the OAuth2AuthorizationRequest
  * from the time the Authorization Request is initiated to the time the Authorization Response is received (the callback).
  */

@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 /**
  * @author Nevzat ÇIRAK,
  * @mail nevzatcirak17@gmail.com
- * Created by nevzatcirak at 01/01/2020.
+ * Created by nevzatcirak at 01/07/2020.
  */
 public interface TokenService {
     /**
