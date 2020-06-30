@@ -1,0 +1,18 @@
+server:
+  port: 8090
+
+security:
+  realm: x-realm
+  issuer-uri: http://localhost:8080/auth/realms/${security.realm}
+  client-id: user-client
+  client-secret: dc56ae34-d246-40a8-af03-add598d3bfbb
+  oauth2:
+    authorization-uri: ${rest.security.issuer-uri}/protocol/openid-connect/auth
+    token-uri: ${rest.security.issuer-uri}/protocol/openid-connect/token
+    user-info-uri: ${rest.security.issuer-uri}/protocol/openid-connect/userinfo
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

@@ -13,7 +13,7 @@ import java.util.Map;
  * @mail ncirak@havelsan.com.tr
  * Created by ncirak at 30/06/2020
  */
-public class OAuthUser extends User implements OAuth2User {
+public class OAuthUser extends User implements OAuth2User, UserDetails {
     public OAuthUser(User user) {
         this.setId(user.getId());
         this.setUsername(user.getUsername());

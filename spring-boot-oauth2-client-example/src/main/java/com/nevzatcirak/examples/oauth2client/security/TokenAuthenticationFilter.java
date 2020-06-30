@@ -1,5 +1,6 @@
 package com.nevzatcirak.examples.oauth2client.security;
 
+import com.nevzatcirak.examples.oauth2client.security.model.AuthProvider;
 import com.nevzatcirak.examples.oauth2client.security.model.AuthUser;
 import com.nevzatcirak.examples.oauth2client.security.model.OAuthUser;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 //                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(convert(userDetails), userDetails.getAuthorities(), "");
+                OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(convert(userDetails), userDetails.getAuthorities(), AuthProvider.kapi.name());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);

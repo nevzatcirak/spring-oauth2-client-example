@@ -20,7 +20,7 @@ public class RestTemplateConfig {
     @Bean
     @RequestScope
     public CustomRestTemplate customRestTemplate() {
-        String accessToken = tokenService.getAccessTokenFromSecurityContext(AuthProvider.keycloak.name());
+        String accessToken = tokenService.getAccessTokenFromSecurityContext(AuthProvider.kapi.name());
         return new CustomRestTemplate(accessToken);
     }
 }
