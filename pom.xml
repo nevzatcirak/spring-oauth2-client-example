@@ -21,7 +21,8 @@
 		<module>spring-boot-react-oauth2-login-demo</module>
 		<module>spring-boot-oauth2-webclient-demo</module>
         <module>spring-boot-oauth2-resource-server-example</module>
-    </modules>
+		<module>spring-boot-oauth2-client-example</module>
+	</modules>
 
 	<repositories>
 		<repository>
