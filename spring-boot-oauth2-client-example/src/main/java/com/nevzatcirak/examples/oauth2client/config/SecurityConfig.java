@@ -52,7 +52,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         jsr250Enabled = true,
         prePostEnabled = true
 )
+@PropertySource("classpath:application.yml")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    private String issuerUri;
+    private String clientId;
+    private String clientSecret;
+
+    @Autowired
+    public SecurityConfig(@Value("${auth.issuer-uri}") String issuerUri,
+                          @Value("${auth.client-id}") String clientId,
+                          @Value("${auth.client-secret}") String clientSecret) {
+        this.issuerUri = issuerUri;
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+    }
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
@@ -63,14 +76,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
-    @Value("${auth.issuer-uri}")
-    private String issuerUri;
-
-    @Value("${auth.client-id}")
-    private String clientId;
-
-    @Value("${auth.client-secret}")
-    private String clientSecret;
 
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
@@ -155,7 +160,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    OAuth2UserService defaultOAuth2UserService(){
+    OAuth2UserService defaultOAuth2UserService() {
         return new DefaultOAuth2UserService();
     }
 
