@@ -242,7 +242,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUriTemplate("{baseUrl}/oauth2/callback/{registrationId}")
-                .scope("user")
+//                .scope("user")
                 .authorizationUri(issuerUri + "/protocol/openid-connect/auth")
                 .tokenUri(issuerUri + "/protocol/openid-connect/token")
                 .userInfoUri(issuerUri + "/protocol/openid-connect/userinfo")
