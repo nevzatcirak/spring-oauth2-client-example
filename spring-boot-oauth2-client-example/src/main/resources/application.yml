@@ -3,7 +3,7 @@ server:
 
 auth:
   realm: x-realm
-  issuer-uri: http://keycloak.x.com/auth/realms/${auth.realm}
+  issuer-uri: http://localhost/auth/realms/${auth.realm}
   client-id: user-client
   client-secret: 495d9618-ea3d-46a1-8e0d-ba026e5061b9
 
