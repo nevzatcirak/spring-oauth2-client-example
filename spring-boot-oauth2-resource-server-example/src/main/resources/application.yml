@@ -19,7 +19,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/auth/realms/x-realm
+          issuer-uri: http://keycloak.x.com/auth/realms/x-realm
 
 
 logging:

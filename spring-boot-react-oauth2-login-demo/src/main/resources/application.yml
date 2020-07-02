@@ -4,7 +4,7 @@ server:
 rest:
   security:
     realm: x-realm
-    issuer-uri: http://localhost:8080/auth/realms/${rest.security.realm}
+    issuer-uri: http://keycloak.x.com/auth/realms/${rest.security.realm}
 
 spring:
     datasource:

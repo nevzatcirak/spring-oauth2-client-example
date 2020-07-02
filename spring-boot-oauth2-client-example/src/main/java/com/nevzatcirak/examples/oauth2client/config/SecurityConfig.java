@@ -21,10 +21,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
-import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -37,8 +34,6 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepo
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * @author Nevzat ÇIRAK,
@@ -75,12 +70,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-
-
-    @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter();
-    }
 
     /*
       By default, Spring OAuth2 uses HttpSessionOAuth2AuthorizationRequestRepository to save
@@ -169,6 +158,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new InMemoryClientRegistrationRepository(this.keycloakClientRegistration());
     }
 
+    @Bean
+    public OAuth2AuthorizedClientService oAuth2AuthorizedClientService(){
+        return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository());
+    }
+
+    @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
+                                                               OAuth2AuthorizedClientService authorizedClientService) {
+        return new TokenAuthenticationFilter(clientRegistrationRepository, authorizedClientService);
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -232,7 +232,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 );
 
         // Add our custom Token based authentication filter
-        http.addFilterBefore(tokenAuthenticationFilter(), OAuth2LoginAuthenticationFilter.class);
+        http.addFilterBefore(tokenAuthenticationFilter(clientRegistrationRepository(),oAuth2AuthorizedClientService()), OAuth2LoginAuthenticationFilter.class);
+//        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     private ClientRegistration keycloakClientRegistration() {

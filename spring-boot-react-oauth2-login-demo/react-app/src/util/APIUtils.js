@@ -42,7 +42,7 @@ export function getTestInfo() {
     }
 
     return request({
-        url: API_BASE_URL + "/testinfo",
+        url: API_BASE_URL + "/test",
         method: 'GET'
     });
 }
