@@ -2,6 +2,7 @@ package com.nevzatcirak.examples.oauth2client.security.oauth2;
 
 import com.nevzatcirak.examples.oauth2client.util.CookieUtils;
 import com.nimbusds.oauth2.sdk.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
  * The AuthorizationRequestRepository is responsible for the persistence of the OAuth2AuthorizationRequest
  * from the time the Authorization Request is initiated to the time the Authorization Response is received (the callback).
  */
-@Component
 public class HttpCookieOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
     public static final String OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME = "oauth2_auth_request";
     public static final String REDIRECT_URI_PARAM_COOKIE_NAME = "redirect_uri";

@@ -1,16 +1,16 @@
 package com.nevzatcirak.examples.oauth2client.config;
 
 import com.nevzatcirak.examples.oauth2client.security.CustomUserDetailsService;
-import com.nevzatcirak.examples.oauth2client.security.TokenAuthenticationFilter;
-import com.nevzatcirak.examples.oauth2client.security.model.AuthProvider;
+import com.nevzatcirak.examples.oauth2client.security.GrantedAuthoritiesInjector;
 import com.nevzatcirak.examples.oauth2client.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.nevzatcirak.examples.oauth2client.security.oauth2.OAuth2AuthenticationFailureHandler;
 import com.nevzatcirak.examples.oauth2client.security.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -19,26 +19,24 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
-import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.oauth2.core.AbstractOAuth2Token;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.web.client.RestTemplate;
+
+import static org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 
 /**
  * @author Nevzat ÇIRAK,
@@ -54,18 +52,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 )
 @PropertySource("classpath:application.yml")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private String issuerUri;
-    private String clientId;
-    private String clientSecret;
-
-    @Autowired
-    public SecurityConfig(@Value("${auth.issuer-uri}") String issuerUri,
-                          @Value("${auth.client-id}") String clientId,
-                          @Value("${auth.client-secret}") String clientSecret) {
-        this.issuerUri = issuerUri;
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
-    }
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
@@ -76,10 +62,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
-
     @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter();
+    RestTemplate rest() {
+        RestTemplate rest = new RestTemplate();
+        rest.getInterceptors().add((request, body, execution) -> {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null) {
+                return execution.execute(request, body);
+            }
+
+            if (!(authentication.getCredentials() instanceof AbstractOAuth2Token)) {
+                return execution.execute(request, body);
+            }
+
+            AbstractOAuth2Token token = (AbstractOAuth2Token) authentication.getCredentials();
+            request.getHeaders().setBearerAuth(token.getTokenValue());
+            return execution.execute(request, body);
+        });
+        return rest;
     }
 
     /*
@@ -164,10 +164,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new DefaultOAuth2UserService();
     }
 
+    /************************Resource Server Configurations*********************************/
+
     @Bean
-    public ClientRegistrationRepository clientRegistrationRepository() {
-        return new InMemoryClientRegistrationRepository(this.keycloakClientRegistration());
+    Converter<Jwt, AbstractAuthenticationToken> grantedAuthoritiesInjectorConverter() {
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesInjector());
+        return jwtAuthenticationConverter;
     }
+
+    @Bean
+    GrantedAuthoritiesInjector grantedAuthoritiesInjector() {
+        return new GrantedAuthoritiesInjector();
+    }
+
+    /***************************************************************************************/
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -198,13 +209,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.css",
                         "/**/*.js")
                 .permitAll()
-                .antMatchers("/auth/**", "/oauth2/**")
-                .permitAll()
+//                .antMatchers("/auth/**", "/oauth2/**")
+//                .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
                 .oauth2Login(oauth2Login ->
                         oauth2Login
+                                .loginPage(DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/" + "kapi")
                                 .authorizationEndpoint(authorizationEndpoint ->
                                         authorizationEndpoint
                                                 .baseUri("/oauth2/authorize")
@@ -229,26 +241,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         oauth2Client
                                 .authorizationCodeGrant()
                                 .accessTokenResponseClient(this.defaultAuthorizationCodeTokenResponseClient())
+                ).oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                        .jwt()
+                        .jwtAuthenticationConverter(grantedAuthoritiesInjectorConverter())
                 );
-
-        // Add our custom Token based authentication filter
-        http.addFilterBefore(tokenAuthenticationFilter(), OAuth2LoginAuthenticationFilter.class);
-    }
-
-    private ClientRegistration keycloakClientRegistration() {
-        return ClientRegistration.withRegistrationId(AuthProvider.kapi.name())
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUriTemplate("{baseUrl}/oauth2/callback/{registrationId}")
-//                .scope("user")
-                .authorizationUri(issuerUri + "/protocol/openid-connect/auth")
-                .tokenUri(issuerUri + "/protocol/openid-connect/token")
-                .userInfoUri(issuerUri + "/protocol/openid-connect/userinfo")
-                .userNameAttributeName("preferred_username")
-                .jwkSetUri(issuerUri + "/protocol/openid-connect/certs")
-                .clientName("Kapi")
-                .build();
     }
 }

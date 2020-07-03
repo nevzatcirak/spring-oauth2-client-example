@@ -23,12 +23,8 @@ import java.util.Objects;
 public class TokenServiceImpl implements TokenService {
     private static final Logger logger = LoggerFactory.getLogger(TokenServiceImpl.class);
 
-    private OAuth2AuthorizedClientService authorizedClientService;
-
     @Autowired
-    public TokenServiceImpl(OAuth2AuthorizedClientService authorizedClientService) {
-        this.authorizedClientService = authorizedClientService;
-    }
+    private OAuth2AuthorizedClientService authorizedClientService;
 
     @Override
     public String getAccessTokenFromSecurityContext(String clientRegistrationId) {

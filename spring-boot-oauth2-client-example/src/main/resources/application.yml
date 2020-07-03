@@ -4,8 +4,29 @@ server:
 auth:
   realm: x-realm
   issuer-uri: "http://localhost:8080/auth/realms/${auth.realm}"
-  client-id: user-client
-  client-secret: a29bd208-c0b6-4828-bbfe-9da2e1cdd5fb
+  user-name-attribute: preferred_username
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        id: kapi
+        jwt:
+          issuer-uri: ${auth.issuer-uri}
+          jwk-set-uri: "${auth.issuer-uri}/protocol/openid-connect/certs"
+      client:
+        registration:
+          kapi:
+            clientId: user-client
+            clientSecret: a29bd208-c0b6-4828-bbfe-9da2e1cdd5fb
+            authorizationGrantType: authorization_code
+            redirectUri:  "{baseUrl}/oauth2/callback/{registrationId}"
+        provider:
+          kapi:
+            authorizationUri: ${auth.issuer-uri}/protocol/openid-connect/auth
+            tokenUri: ${auth.issuer-uri}/protocol/openid-connect/token
+            user-name-attribute: ${auth.user-name-attribute}
+            userInfoUri: ${auth.issuer-uri}/protocol/openid-connect/userinfo
 
 #logging:
 #  level:

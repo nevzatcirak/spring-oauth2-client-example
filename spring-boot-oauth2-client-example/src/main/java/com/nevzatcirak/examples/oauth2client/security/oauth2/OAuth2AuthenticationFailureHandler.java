@@ -1,5 +1,7 @@
 package com.nevzatcirak.examples.oauth2client.security.oauth2;
 
+import com.nevzatcirak.examples.oauth2client.security.model.AuthProvider;
+import com.nevzatcirak.examples.oauth2client.service.TokenService;
 import com.nevzatcirak.examples.oauth2client.util.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
@@ -23,6 +25,9 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
     @Autowired
     HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
+
+    @Autowired
+    TokenService tokenService;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
