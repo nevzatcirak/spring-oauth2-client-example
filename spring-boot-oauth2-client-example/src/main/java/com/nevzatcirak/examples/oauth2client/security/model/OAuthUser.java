@@ -14,6 +14,8 @@ import java.util.Map;
  * Created by ncirak at 30/06/2020
  */
 public class OAuthUser extends User implements OAuth2User, UserDetails {
+    private Map<String, Object> attributes;
+
     public OAuthUser(User user) {
         this.setId(user.getId());
         this.setUsername(user.getUsername());
@@ -24,10 +26,6 @@ public class OAuthUser extends User implements OAuth2User, UserDetails {
         this.setAccountNonExpired(user.isAccountNonExpired());
         this.setAccountNonLocked(user.isAccountNonLocked());
         this.setCredentialsNonExpired(user.isCredentialsNonExpired());
-//        this.setEnabled(user.isEnabled());
-//        this.setCustomFields(user.getCustomFields());
-//        this.setRoles(user.getRoles());
-//        this.setUserSettings(user.getUserSettings());
     }
 
     public OAuthUser(UserDetails user) {
@@ -36,21 +34,32 @@ public class OAuthUser extends User implements OAuth2User, UserDetails {
         this.setAccountNonExpired(user.isAccountNonExpired());
         this.setAccountNonLocked(user.isAccountNonLocked());
         this.setCredentialsNonExpired(user.isCredentialsNonExpired());
-//        this.setEnabled(user.isEnabled());
-//        this.setCustomFields(user.getCustomFields());
-//        this.setRoles(user.getRoles());
-//        this.setUserSettings(user.getUserSettings());
+    }
+
+    public static OAuthUser create(User user){
+        return new OAuthUser(user);
+    }
+
+    public static OAuthUser create(User user, Map<String, Object> attributes){
+        OAuthUser oAuthUser = create(user);
+        oAuthUser.setAttributes(attributes);
+        return oAuthUser;
     }
 
     @Override
     public <A> A getAttribute(String name) {
-        return null;
+        return (A) this.attributes.get(name);
     }
 
     @Override
     public Map<String, Object> getAttributes() {
-        return null;
+        return this.attributes;
     }
+
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
+    }
+
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new HashSet<>();

@@ -2,6 +2,7 @@ package com.nevzatcirak.examples.oauth2client.config;
 
 import com.nevzatcirak.examples.oauth2client.security.CustomUserDetailsService;
 import com.nevzatcirak.examples.oauth2client.security.GrantedAuthoritiesInjector;
+import com.nevzatcirak.examples.oauth2client.security.oauth2.CustomOAuth2UserService;
 import com.nevzatcirak.examples.oauth2client.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.nevzatcirak.examples.oauth2client.security.oauth2.OAuth2AuthenticationFailureHandler;
 import com.nevzatcirak.examples.oauth2client.security.oauth2.OAuth2AuthenticationSuccessHandler;
@@ -34,6 +35,7 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepo
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
 
 import static org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
@@ -55,6 +57,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
 
     @Autowired
     private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
@@ -216,7 +221,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .oauth2Login(oauth2Login ->
                         oauth2Login
-                                .loginPage(DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/" + "kapi")
+                                .loginPage(DEFAULT_AUTHORIZATION_REQUEST_BASE_URI)
                                 .authorizationEndpoint(authorizationEndpoint ->
                                         authorizationEndpoint
                                                 .baseUri("/oauth2/authorize")
@@ -232,7 +237,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                                 )
                                 .userInfoEndpoint(userInfoEndpoint ->
                                         userInfoEndpoint
-                                                .userService(defaultOAuth2UserService())
+                                                .userService(customOAuth2UserService)
                                 )
                                 .successHandler(oAuth2AuthenticationSuccessHandler)
                                 .failureHandler(oAuth2AuthenticationFailureHandler)

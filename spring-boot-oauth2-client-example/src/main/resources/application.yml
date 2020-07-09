@@ -10,19 +10,19 @@ spring:
   security:
     oauth2:
       resourceserver:
-        id: kapi
+        id: keycloak
         jwt:
           issuer-uri: ${auth.issuer-uri}
           jwk-set-uri: "${auth.issuer-uri}/protocol/openid-connect/certs"
       client:
         registration:
-          kapi:
+          keycloak:
             clientId: user-client
             clientSecret: a29bd208-c0b6-4828-bbfe-9da2e1cdd5fb
             authorizationGrantType: authorization_code
             redirectUri:  "{baseUrl}/oauth2/callback/{registrationId}"
         provider:
-          kapi:
+          keycloak:
             authorizationUri: ${auth.issuer-uri}/protocol/openid-connect/auth
             tokenUri: ${auth.issuer-uri}/protocol/openid-connect/token
             user-name-attribute: ${auth.user-name-attribute}

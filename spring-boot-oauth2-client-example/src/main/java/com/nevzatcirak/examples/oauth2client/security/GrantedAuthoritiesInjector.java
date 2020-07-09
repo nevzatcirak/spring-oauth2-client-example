@@ -15,9 +15,6 @@ import java.util.List;
  */
 public class GrantedAuthoritiesInjector implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-    @Value("${spring.security.oauth2.resourceserver.id}")
-    private String resourceId;
-
     @Value("${auth.user-name-attribute}")
     private String usernameAttribute;
 

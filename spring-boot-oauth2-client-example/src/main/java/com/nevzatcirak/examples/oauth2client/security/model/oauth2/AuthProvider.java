@@ -1,4 +1,4 @@
-package com.nevzatcirak.examples.oauth2client.security.model;
+package com.nevzatcirak.examples.oauth2client.security.model.oauth2;
 
 /**
  * @author Nevzat ÇIRAK
@@ -7,6 +7,6 @@ package com.nevzatcirak.examples.oauth2client.security.model;
  */
 public enum  AuthProvider {
     local,
-    kapi
+    keycloak
 }
 

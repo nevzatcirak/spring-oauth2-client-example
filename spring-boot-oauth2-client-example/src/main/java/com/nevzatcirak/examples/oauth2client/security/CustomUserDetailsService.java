@@ -3,8 +3,10 @@ package com.nevzatcirak.examples.oauth2client.security;
 
 import com.nevzatcirak.examples.oauth2client.security.model.OAuthUser;
 import com.nevzatcirak.examples.oauth2client.security.model.User;
+import com.nevzatcirak.examples.oauth2client.util.UserUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,31 +21,23 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
     private static final Logger logger = LogManager.getLogger();
 
+    @Autowired
+    private UserUtils userUtils;
+
     @Override
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
-        User user = getUserDetails(username);
+        User user = userUtils.getUser(username);
         if (user == null) {
             logger.debug("Username:" + username + " not found!");
             throw new UsernameNotFoundException("Username=" + username + " not found!");
         }
         logger.debug("Loaded: " + user);
-        return convertUser(user);
+        return userUtils.convertUser(user);
     }
 
-    private User getUserDetails(String username) {
-        User user = new User();
-        user.setUsername(username);
-        user.setName("Dummy");
-        user.setEmail("dummy@user.com");
-        user.setSurname("User");
-        user.setId(1L);
-        user.setPassword("123456");
-        return user;
-    }
-
-    private OAuthUser convertUser(User user) {
-        return new OAuthUser(user);
+    public OAuthUser loadOAuthUserByUsername(String username){
+        return userUtils.convertUser((User) loadUserByUsername(username));
     }
 
 }
