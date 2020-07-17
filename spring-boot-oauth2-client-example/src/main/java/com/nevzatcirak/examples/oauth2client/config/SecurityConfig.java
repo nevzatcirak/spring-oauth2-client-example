@@ -2,6 +2,7 @@ package com.nevzatcirak.examples.oauth2client.config;
 
 import com.nevzatcirak.examples.oauth2client.security.CustomUserDetailsService;
 import com.nevzatcirak.examples.oauth2client.security.GrantedAuthoritiesInjector;
+import com.nevzatcirak.examples.oauth2client.security.model.oauth2.AuthProvider;
 import com.nevzatcirak.examples.oauth2client.security.oauth2.CustomOAuth2UserService;
 import com.nevzatcirak.examples.oauth2client.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.nevzatcirak.examples.oauth2client.security.oauth2.OAuth2AuthenticationFailureHandler;
@@ -37,6 +38,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.annotation.RequestScope;
 
 import static org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 
@@ -190,6 +192,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .cors()
                 .and()
+                .headers().httpStrictTransportSecurity().disable()
+                .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -214,14 +218,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/**/*.css",
                         "/**/*.js")
                 .permitAll()
-//                .antMatchers("/auth/**", "/oauth2/**")
-//                .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
-                .oauth2Login(oauth2Login ->
+                /*.oauth2Login(oauth2Login ->
                         oauth2Login
-                                .loginPage(DEFAULT_AUTHORIZATION_REQUEST_BASE_URI)
+                                // To override the default login page, configure oauth2Login().loginPage()
+                                // and (optionally) oauth2Login().authorizationEndpoint().baseUri()
+                                .loginPage(DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/" + AuthProvider.keycloak.name())
                                 .authorizationEndpoint(authorizationEndpoint ->
                                         authorizationEndpoint
                                                 .baseUri("/oauth2/authorize")
@@ -246,7 +250,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         oauth2Client
                                 .authorizationCodeGrant()
                                 .accessTokenResponseClient(this.defaultAuthorizationCodeTokenResponseClient())
-                ).oauth2ResourceServer(oauth2ResourceServer ->
+                )*/.oauth2ResourceServer(oauth2ResourceServer ->
                 oauth2ResourceServer
                         .jwt()
                         .jwtAuthenticationConverter(grantedAuthoritiesInjectorConverter())

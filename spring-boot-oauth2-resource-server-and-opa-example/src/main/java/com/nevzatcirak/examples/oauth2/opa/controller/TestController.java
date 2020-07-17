@@ -1,18 +1,14 @@
-package com.nevzatcirak.examples.oauth2client.controller;
+package com.nevzatcirak.examples.oauth2.opa.controller;
 
-import com.nevzatcirak.examples.oauth2client.security.CustomUserDetailsService;
+import com.nevzatcirak.examples.oauth2.opa.security.CustomUserDetailsService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @author Nevzat ÇIRAK

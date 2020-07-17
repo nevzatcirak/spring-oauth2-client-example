@@ -22,7 +22,8 @@
 		<module>spring-boot-oauth2-webclient-demo</module>
         <module>spring-boot-oauth2-resource-server-example</module>
 		<module>spring-boot-oauth2-client-example</module>
-	</modules>
+        <module>spring-boot-oauth2-resource-server-and-opa-example</module>
+    </modules>
 
 	<repositories>
 		<repository>
