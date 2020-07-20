@@ -42,4 +42,25 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <configuration>
+                    <from>
+                        <image>openjdk:11.0.8</image>
+                    </from>
+                    <to>
+                        <image>nevzatcirak/spring-security-oauth2-resource-server-demo</image>
+                        <tags>
+                            <tag>latest</tag>
+                        </tags>
+                    </to>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
