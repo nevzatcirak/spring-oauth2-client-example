@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
  * Created by ncirak at 02/07/2020
  */
 @RestController
-@RequestMapping("/")
+@RequestMapping("/rest")
 public class TestController {
     private static final Logger logger = LogManager.getLogger();
 
@@ -34,6 +34,11 @@ public class TestController {
     @GetMapping("/test")
     public String getTestInfo() {
         return "OK. You have authenticated! :)";
+    }
+
+    @GetMapping("/permit-all")
+    public String getTestPermitAllInfo() {
+        return "OK. Permit All Endpoint! :)";
     }
 
     @GetMapping("/rest/test")

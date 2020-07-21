@@ -221,7 +221,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .authenticated()
                 .and()
-                /*.oauth2Login(oauth2Login ->
+                .oauth2Login(oauth2Login ->
                         oauth2Login
                                 // To override the default login page, configure oauth2Login().loginPage()
                                 // and (optionally) oauth2Login().authorizationEndpoint().baseUri()
@@ -250,7 +250,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         oauth2Client
                                 .authorizationCodeGrant()
                                 .accessTokenResponseClient(this.defaultAuthorizationCodeTokenResponseClient())
-                )*/.oauth2ResourceServer(oauth2ResourceServer ->
+                ).oauth2ResourceServer(oauth2ResourceServer ->
                 oauth2ResourceServer
                         .jwt()
                         .jwtAuthenticationConverter(grantedAuthoritiesInjectorConverter())

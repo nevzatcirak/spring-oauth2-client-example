@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.web.client.RestTemplate;
 
@@ -37,6 +38,9 @@ public class OPAVoter implements AccessDecisionVoter<Object> {
 
     @Override
     public int vote(Authentication authentication, Object obj, Collection<ConfigAttribute> attrs) {
+
+        if(!(authentication instanceof JwtAuthenticationToken))
+            return ACCESS_DENIED;
 
         if (!(obj instanceof FilterInvocation)) {
             return ACCESS_ABSTAIN;

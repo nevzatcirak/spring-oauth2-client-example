@@ -137,16 +137,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/",
-                        "/error",
+                .antMatchers("/rest/**")
+                .authenticated()
+                .antMatchers("/error",
                         "/favicon.ico",
-                        "/**/*.png",
-                        "/**/*.gif",
-                        "/**/*.svg",
-                        "/**/*.jpg",
-                        "/**/*.html",
-                        "/**/*.css",
-                        "/**/*.js")
+                        "/rest/permit-all")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
