@@ -51,7 +51,7 @@
                 <version>2.0.0</version>
                 <configuration>
                     <from>
-                        <image>openjdk:11.0.8</image>
+                        <image>openjdk:8-jdk-alpine</image>
                     </from>
                     <to>
                         <image>nevzatcirak/spring-security-oauth2-resource-server-demo</image>

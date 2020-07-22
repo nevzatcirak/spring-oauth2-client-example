@@ -1,6 +1,7 @@
 package com.nevzatcirak.examples.oauth2resourceserver.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
@@ -10,10 +11,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Objects;
 
 /**
  * Configures the resource server security for a stateless REST resource server that works with keycloak.
@@ -23,9 +28,23 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @Import({SecurityProperties.class})
 public class ResourceServerSecurityConfig extends WebSecurityConfigurerAdapter {
+    private String issuerUri;
+    private String jwkSetUri;
 
     @Autowired
     private SecurityProperties securityProperties;
+
+    public ResourceServerSecurityConfig(@Value("${auth.issuer-uri}") String issuerUri,
+                          @Value("${auth.jwk-set-uri}") String jwkSetUri, @Value("${auth.host}") String hostname) {
+        String authHostname = System.getenv("AUTH_HOSTNAME");
+        if (!Objects.isNull(authHostname)) {
+            this.jwkSetUri = jwkSetUri.replaceAll(hostname, authHostname);
+            this.issuerUri = issuerUri.replaceAll(hostname, authHostname);
+        } else {
+            this.jwkSetUri = jwkSetUri;
+            this.issuerUri = issuerUri;
+        }
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -45,10 +64,18 @@ public class ResourceServerSecurityConfig extends WebSecurityConfigurerAdapter {
                 )
                 .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> {
                     httpSecurityOAuth2ResourceServerConfigurer
-                            .jwt()
-                            .jwtAuthenticationConverter(grantedAuthoritiesExtractorConverter());
+                            .jwt(jwt -> jwt
+                                    .decoder(jwtDecoder())
+                                    .jwkSetUri(jwkSetUri)
+                                    .jwtAuthenticationConverter(grantedAuthoritiesExtractorConverter())
+                            );
                 });
         // @formatter:on
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return JwtDecoders.fromIssuerLocation(issuerUri);
     }
 
     @Bean

@@ -15,19 +15,21 @@ resourceServer:
   resourceId: test-resource-service # will be used to extract the scoped roles for this resource from the jwt id-token
 
 auth:
+  host: localhost
   realm: master
-  issuer-uri: "http://localhost:8080/auth/realms/${auth.realm}"
+  issuer-uri: "http://${auth.host}:8080/auth/realms/${auth.realm}"
+  jwk-set-uri: "${auth.issuer-uri}/protocol/openid-connect/certs"
   user-name-attribute: preferred_username
 
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        id: keycloak
-        jwt:
-          issuer-uri: ${auth.issuer-uri}
-          jwk-set-uri: "${auth.issuer-uri}/protocol/openid-connect/certs"
-
+#spring:
+#  security:
+#    oauth2:
+#      resourceserver:
+#        id: keycloak
+#        jwt:
+#          issuer-uri: ${auth.issuer-uri}
+#          jwk-set-uri: "${auth.issuer-uri}/protocol/openid-connect/certs"
+#
 
 #logging:
 #  level:
